@@ -1,3 +1,5 @@
+from sklearn.metrics import confusion_matrix
+
 from l2_distance import l2_distance
 from utils import *
 
@@ -37,20 +39,30 @@ def knn(k, train_data, train_labels, valid_data):
     return valid_labels
 
 
+def get_accuracy(C):
+    """ Compute accuracy given Numpy array confusion matrix C. Returns a floating point value """
+    return round(np.sum(np.diag(C)) / np.sum(C), 4)
+
+
 def run_knn():
     train_inputs, train_targets = load_train()
     valid_inputs, valid_targets = load_valid()
     test_inputs, test_targets = load_test()
 
-    #####################################################################
-    # TODO:                                                             #
-    # Implement a function that runs kNN for different values of k,     #
-    # plots the classification rate on the validation set, and etc.     #
-    #####################################################################
+    k_list = [1, 3, 5, 7, 9]
+    accuracies = []
+    for k in k_list:
+        valid_labels = knn(k, train_inputs, train_targets, valid_inputs)
+        C = confusion_matrix(valid_targets, valid_labels)
+        accuracies.append(get_accuracy(C))
 
-    #####################################################################
-    #                       END OF YOUR CODE                            #
-    #####################################################################
+    plt.scatter(k_list, accuracies)
+    plt.plot(k_list, accuracies)
+    plt.xlabel('k')
+    plt.ylabel('accuracy')
+    plt.title('k vs. accuracy')
+    plt.legend()
+    plt.show()
 
 
 if __name__ == "__main__":
