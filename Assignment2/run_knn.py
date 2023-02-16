@@ -33,7 +33,7 @@ def knn(k, train_data, train_labels, valid_data):
     valid_labels = train_labels[nearest]
 
     # Note this only works for binary labels:
-    valid_labels = (np.mean(valid_labels, axis=1) >= 0.5).astype(np.int)
+    valid_labels = np.int_(np.mean(valid_labels, axis=1) >= 0.5)
     valid_labels = valid_labels.reshape(-1, 1)
 
     return valid_labels
@@ -56,13 +56,49 @@ def run_knn():
         C = confusion_matrix(valid_targets, valid_labels)
         accuracies.append(get_accuracy(C))
 
+    # Plot the accuracies
     plt.scatter(k_list, accuracies)
     plt.plot(k_list, accuracies)
     plt.xlabel('k')
     plt.ylabel('accuracy')
     plt.title('k vs. accuracy')
-    plt.legend()
     plt.show()
+
+    print("I choose k = 5, since it's the median value for highest accuracies")
+    k = 5
+    valid_labels = knn(k, train_inputs, train_targets, valid_inputs)
+    C = confusion_matrix(valid_targets, valid_labels)
+    print(f'Accuracy on validation set: {get_accuracy(C)}')
+    test_labels = knn(k, train_inputs, train_targets, test_inputs)
+    C = confusion_matrix(test_targets, test_labels)
+    print(f'Accuracy on test set: {get_accuracy(C)}')
+
+    print("===" * 20)
+    print("===" * 20)
+    print('Try k = 7 (5 + 2)')
+    valid_labels = knn(k, train_inputs, train_targets, valid_inputs)
+    C = confusion_matrix(valid_targets, valid_labels)
+    print(f'Accuracy on validation set: {get_accuracy(C)}')
+    test_labels = knn(k, train_inputs, train_targets, test_inputs)
+    C = confusion_matrix(test_targets, test_labels)
+    print(f'Accuracy on test set: {get_accuracy(C)}')
+
+    print("===" * 20)
+    print("===" * 20)
+    print('Try k = 3 (5 - 2)')
+    valid_labels = knn(k, train_inputs, train_targets, valid_inputs)
+    C = confusion_matrix(valid_targets, valid_labels)
+    print(f'Accuracy on validation set: {get_accuracy(C)}')
+    test_labels = knn(k, train_inputs, train_targets, test_inputs)
+    C = confusion_matrix(test_targets, test_labels)
+    print(f'Accuracy on test set: {get_accuracy(C)}')
+
+    print("===" * 20)
+    print("===" * 20)
+    print("As we change the value of k, we can see that the accuracy don' have a big change in this question.")
+    print("However, we expect the accuracy to decrease when we change the value of k.")
+    print("When k is smaller than 5, the model would more likely to underfit the data.")
+    print("When k is larger than 5, the model would more likely to overfit the data.")
 
 
 if __name__ == "__main__":

@@ -16,15 +16,11 @@ def logistic_predict(weights, data):
     :return: A vector of probabilities with dimension N x 1, which is the output
     to the classifier.
     """
-    #####################################################################
-    # TODO:                                                             #
-    # Given the weights and bias, compute the probabilities predicted   #
-    # by the logistic classifier.                                       #
-    #####################################################################
-    y = None
-    #####################################################################
-    #                       END OF YOUR CODE                            #
-    #####################################################################
+    ones = np.ones((data.shape[0], 1))
+    data_with_bias = np.hstack((data, ones))
+    logits = data_with_bias @ weights
+    y = sigmoid(logits)
+
     return y
 
 
@@ -41,17 +37,10 @@ def evaluate(targets, y):
         ce: (float) Averaged cross entropy
         frac_correct: (float) Fraction of inputs classified correctly
     """
-    #####################################################################
-    # TODO:                                                             #
-    # Given targets and probabilities predicted by the classifier,      #
-    # return cross entropy and the fraction of inputs classified        #
-    # correctly.                                                        #
-    #####################################################################
-    ce = None
-    frac_correct = None
-    #####################################################################
-    #                       END OF YOUR CODE                            #
-    #####################################################################
+
+    ce = -np.mean(targets * np.log(y) + (1 - targets) * np.log(1 - y))
+    frac_correct = np.mean(targets == np.round(y))
+
     return ce, frac_correct
 
 
@@ -76,16 +65,13 @@ def logistic(weights, data, targets, hyperparameters):
         y: N x 1 vector of probabilities.
     """
     y = logistic_predict(weights, data)
+    f = evaluate(targets, y)[0]
+    f += hyperparameters['weight_regularization'] * np.sum(weights ** 2)
 
-    #####################################################################
-    # TODO:                                                             #
-    # Given weights and data, return the averaged loss over all data    #
-    # points, gradient of parameters, and the probabilities given by    #
-    # logistic regression.                                              #
-    #####################################################################
-    f = None
-    df = None
-    #####################################################################
-    #                       END OF YOUR CODE                            #
-    #####################################################################
+    ones = np.ones((data.shape[0], 1))
+    data_with_bias = np.hstack((data, ones))
+
+    grad_ce = np.transpose(data_with_bias) @ (y - targets) / data_with_bias.shape[0]
+    grad_reg = 2 * hyperparameters['weight_regularization'] * weights
+    df = grad_ce + grad_reg
     return f, df, y
