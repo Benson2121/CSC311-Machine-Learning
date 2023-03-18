@@ -2,37 +2,34 @@
 
 Please refer to the handout.pdf for the full assignment.
 
-## 1. Nearest Neighbours and the Curse of Dimensionality. 
+## 1. Expected Loss and Bayes Optimality
 
-In this question, you will verify the claim from lecture that “most” points in a high-dimensional space are far away from each other, and also approximately the same distance. There is a very neat proof of this fact which uses the properties of expectation and variance.
 
-(a) Suppose we have a classification dataset where each data point has one feature. The feature takes on a real value between [0, 1]. What is the minimum number of data points we need to guarantee that any new test point is within (≤) 0.01 of an old point?
+You are running an email service, and one of your key features is a spam filter. Every email is either spam or non-spam, which we represent with the target t ∈ {Spam, NonSpam}. You need to decide whether to keep it in the inbox or remove it to the spam folder. We represent this with the decision variable y ∈ {Keep, Remove}. We’d like to remove spam emails and keep non-spam ones, but the customers will be much more unhappy if we remove a non-spam email than if we keep a spam email.
 
-(b) Explain why such a guarantee is more difficult to maintain when we are working on a problem with 10 features.
+Your studies indicate that 20% of the emails are spam, i.e. Pr(t = Spam) = 0.2.
 
-(c) For each choice of dimension d ∈ [20, 21, 22, ..., 210], sample 100 points from the unit cube, and record the following average distances between all pairs of points, as well as the standard deviation of the distances.
+- (a) Evaluate the expected loss E[J (y, t)] for the policy that keeps every email (y = Keep), and for the policy that removes every email (y = Remove).
 
-(d) In this question, we aim to verify our simulations in part (c) by deriving the analytical form of averaged Euclidean distance and variance of Euclidean distance.
+- (b) Now suppose you get to observe a feature vector x for each email, and using your knowledge of the joint distribution p(x,t), you infer p(t|x). Determine how you will make Bayes optimal decision y∗ ∈ {Keep, Remove} given the conditional probability Pr(t = Spam | x).
 
-(e) In probability theory, one can derive that P(|Z − E[Z]| ≥ a) ≤ Var[Z]/a^2 for any random variable Z. (This fact is known as Markov’s Inequality.) Based on your answer to part (d), explain why does this support the claim that in high dimensions, “most points are approximately the same distance”?
+- (c) After some analysis, you found two words that are indicative of an email being spam: “Sale” and “Prince”. You define two input features:
 
-## 2. Decision Trees.
-In this question, you will use the scikit-learn decision tree classifier to classify real vs. fake news headlines. The aim of this question is for you to read the scikit-learn API and get comfortable with training/validation splits.
+x1 = 1 if the email contains the word “Sale” and x1 = 0 otherwise, and
+x2 = 1 if the email contains the word “Prince” and x2 = 0 otherwise.
 
-We will use a dataset of 1298 “fake news” headlines (which mostly include headlines of articles classified as biased, etc.) and 1968 “real” news headlines, where the “fake news” headlines are from [fake-news-data](https://www.kaggle.com/mrisdal/fake-news/data) and “real news” headlines are from [real-news-data](https://www.kaggle.com/therohk/million-headlines). The data were cleaned by removing words from fake news titles that are not a part of the headline, removing special characters from the headlines, and restricting real news headlines to those after October 2016 containing the word “trump”.
+- (d) What is the expected loss E[J(y∗,t)] for the Bayes optimal decision rule from part (c)?
 
-(a) Write a function load_data which loads the data, preprocesses it using a [vectorizer](http://scikit-learn.org/stable/modules/classes.html#module-sklearn.feature_extraction.text), and splits the entire dataset randomly into 70% training, 15% vali- dation, and 15% test examples.
+## 2. Feature Maps.
+Suppose we have the following 2-D data-set for binary classification.
 
-(b) Write a function select_model which trains the decision tree classifier using at least 5 different values of max_depth, as well as three different split criteria (infor- mation gain, log loss and Gini coefficient), evaluates the performance of each one on the validation set, and prints the resulting accuracies of each model.
+- (a) Explain why this data-set is NOT linearly separable in a few sentences.
 
-(c) Now let’s stick with the hyperparameters which achieved the highest validation accuracy. Extract and visualize the first two layers of the tree.
+- (b) Suppose you are interested in studying if the above data-set can be separable by a quadratic functions y = w1x1 + w2x2 + w3x2. Write all the constraints that w1, w2, w3 have to satisfy. You do not need to solve for the w using the constraints.
 
-## 3. Regularized Linear Regression.
-In lecture, we saw that regression models with too much capacity can overfit the training data and fail to generalize. We also saw that one way to improve generalization is regularization: adding a term to the cost function which favors some explanations over others.
+## 3. kNN vs. Logistic Regression.
+In this problem, you will compare the performance and characteristics of two classifiers: k-Nearest Neighbors and Logistic Regression. You will complete the provided code in q3/ and run experiments with the completed code. You should understand the code instead of using it as a black box.
 
-(a) Determine the gradient descent update rules for the regularized cost function. You may notice that the absolute value function is not differentiable everywhere,
-in particular at 0.
+- (a) k-Nearest Neighbors. Use the supplied kNN implementation to predict labels for mnist_valid, using the training set mnist_train.
 
-(b) For the remaining part of the question, consider the special case where λ1 = 0. In other words, we only apply the l2 penalty. It is possible to solve this regularized regression problem, also called Ridge Regression, directly by setting the partial derivatives equal to zero.
-
-(c) Based on your answer to part (b), determine formulas for A and c, and derive a closed-form solution for the parameter w. Note that, as usual, the inputs are organized into a design matrix X with one row per training example.
+- (b) Logistic Regression. Read the provided code in run_logistic_regression.py and logistic.py.
