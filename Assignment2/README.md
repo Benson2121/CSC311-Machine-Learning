@@ -16,6 +16,7 @@ Your studies indicate that 20% of the emails are spam, i.e. Pr(t = Spam) = 0.2.
 - (c) After some analysis, you found two words that are indicative of an email being spam: “Sale” and “Prince”. You define two input features:
 
 x1 = 1 if the email contains the word “Sale” and x1 = 0 otherwise, and
+
 x2 = 1 if the email contains the word “Prince” and x2 = 0 otherwise.
 
 - (d) What is the expected loss E[J(y∗,t)] for the Bayes optimal decision rule from part (c)?
