@@ -25,7 +25,7 @@ We will use a dataset of 1298 “fake news” headlines (which mostly include he
 
 (b) Write a function select_model which trains the decision tree classifier using at least 5 different values of max_depth, as well as three different split criteria (infor- mation gain, log loss and Gini coefficient), evaluates the performance of each one on the validation set, and prints the resulting accuracies of each model.
 
-(c) Now let’s stick with the hyperparameters which achieved the highest validation accuracy. Extract and visualize the first two layers of the tree. Your visualization may look something like what is shown below, but it does not have to be an image: it is perfectly fine to display text.
+(c) Now let’s stick with the hyperparameters which achieved the highest validation accuracy. Extract and visualize the first two layers of the tree.
 
 ## 3. Regularized Linear Regression.
 In lecture, we saw that regression models with too much capacity can overfit the training data and fail to generalize. We also saw that one way to improve generalization is regularization: adding a term to the cost function which favors some explanations over others.
