@@ -92,7 +92,10 @@ def train_mle_estimator(train_images, train_labels):
     """ Inputs: train_images, train_labels
         Returns the MLE estimators theta_mle and pi_mle"""
 
-    # YOU NEED TO WRITE THIS PART
+    length = len(train_labels)
+    label_count = np.sum(train_labels, axis=0)
+    pi_mle = label_count / length
+    theta_mle = train_images.T @ train_labels / label_count
     return theta_mle, pi_mle
 
 
@@ -100,7 +103,10 @@ def train_map_estimator(train_images, train_labels):
     """ Inputs: train_images, train_labels
         Returns the MAP estimators theta_map and pi_map"""
     
-    # YOU NEED TO WRITE THIS PART
+    length = len(train_labels)
+    label_count = np.sum(train_labels, axis=0)
+    pi_map = label_count / length
+    theta_map = (train_images.T @  train_labels + 2) / (label_count + 4)
     return theta_map, pi_map
 
 
@@ -110,9 +116,12 @@ def log_likelihood(images, theta, pi):
     log_like[i,c] = log p (c |x^(i), theta, pi) using the estimators theta and pi.
     log_like is a matrix of num of images x num of classes
     Note that log likelihood is not only for c^(i), it is for all possible c's."""
-
     # YOU NEED TO WRITE THIS PART
-
+    log_term = images @ np.log(theta) + (1 - images) @ np.log(1 - theta)
+    first = np.log(pi)
+    second = log_term
+    third = np.log(np.exp(log_term) @ pi).reshape(-1, 1)
+    log_like = first + second - third
     return log_like
 
 
@@ -121,6 +130,7 @@ def predict(log_like):
     Returns the predictions based on log likelihood values"""
 
     # YOU NEED TO WRITE THIS PART
+    predictions = log_like == log_like.max(axis=1, keepdims=1)
     return predictions
 
 
@@ -129,6 +139,7 @@ def accuracy(log_like, labels):
     Returns the accuracy based on predictions from log likelihood values"""
 
     # YOU NEED TO WRITE THIS PART
+    acc = np.mean(predict(log_like) == labels)
     return acc
 
 
