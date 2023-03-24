@@ -30,7 +30,7 @@ def neg_log_likelihood(data, theta, beta):
         log_lklihood += data['is_correct'][i] * x - np.log(1 + np.exp(x))
     neg_lklihood = -log_lklihood
     #####################################################################
-    return neg_lklihood
+    return float(neg_lklihood)
 
 
 def update_theta_beta(data, lr, theta, beta):
@@ -76,26 +76,28 @@ def irt(data, val_data, lr, iterations):
     is_correct: list}
     :param lr: float
     :param iterations: int
-    :return: (theta, beta, val_acc_lst, train_lld_lst, val_lld_lst)
+    :return: (theta, beta, train_acc_lst, val_acc_lst, train_lld_lst, val_lld_lst)
     """
     theta = np.random.normal(0, 0.1, (len(data["user_id"]), 1))
     beta = np.random.normal(0, 0.1, (len(data["question_id"]), 1))
 
+    train_acc_lst = []
     val_acc_lst = []
     train_lld_lst = []
     val_lld_lst = []
 
     for i in range(iterations):
+        train_acc_lst.append(evaluate(data, theta, beta))
         neg_lld = neg_log_likelihood(data, theta=theta, beta=beta)
         train_lld_lst.append(-neg_lld)
         score = evaluate(data=val_data, theta=theta, beta=beta)
         val_acc_lst.append(score)
         val_neg_lld = neg_log_likelihood(val_data, theta=theta, beta=beta)
         val_lld_lst.append(-val_neg_lld)
-        print("NLLK: {} \t Score: {}".format(neg_lld, score))
+        print("Iteration: {} \t Training NLLK: {} \t Validation Accuracy: {}".format(i + 1, neg_lld, score))
         theta, beta = update_theta_beta(data, lr, theta, beta)
 
-    return theta, beta, val_acc_lst, train_lld_lst, val_lld_lst
+    return theta, beta, train_acc_lst, val_acc_lst, train_lld_lst, val_lld_lst
 
 
 def evaluate(data, theta, beta):
@@ -128,13 +130,16 @@ def main():
     lr = 0.005
     iterations = 10
     iteration_range = range(1, iterations + 1)
-    theta, beta, val_acc_lst, train_lld_lst, val_lld_lst = irt(train_data, val_data, lr, iterations)
-    print()
+    theta, beta, train_acc_lst, val_acc_lst, train_lld_lst, val_lld_lst = irt(train_data, val_data, lr, iterations)
+
+    plt.scatter(iteration_range, train_acc_lst)
     plt.scatter(iteration_range, val_acc_lst)
+    plt.plot(iteration_range, train_acc_lst)
     plt.plot(iteration_range, val_acc_lst)
     plt.xlabel("Iterations")
-    plt.ylabel("Validation Accuracy")
-    plt.title("Validation Accuracy vs. Iterations")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy vs. Iterations")
+    plt.legend(["Train", "Validation"])
     plt.show()
 
     plt.scatter(iteration_range, train_lld_lst)
@@ -146,6 +151,9 @@ def main():
     plt.title("Log-Likelihood vs. Iterations")
     plt.legend(["Train", "Validation"])
     plt.show()
+
+    print("Final Validation Accuracy: {}".format(evaluate(val_data, theta, beta)))
+    print("Test Accuracy: {}".format(evaluate(test_data, theta, beta)))
     #####################################################################
 
     #####################################################################
