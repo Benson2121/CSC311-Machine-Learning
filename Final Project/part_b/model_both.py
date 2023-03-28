@@ -1,3 +1,5 @@
+from sklearn.model_selection import KFold
+
 from utils import *
 from torch.autograd import Variable
 
@@ -9,6 +11,7 @@ import torch.utils.data
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+from sklearn.ensemble import *
 
 
 def load_data(base_path="../data"):
@@ -50,6 +53,7 @@ class AutoEncoder(nn.Module):
         # Define linear functions.
         self.g = nn.Linear(num_question, k)
         self.h = nn.Linear(k, num_question)
+        self.dropout = nn.Dropout(p=0.3)
 
     def get_weight_norm(self):
         """ Return ||W^1||^2 + ||W^2||^2.
@@ -69,6 +73,7 @@ class AutoEncoder(nn.Module):
         #####################################################################
         x = self.g(inputs)
         x = F.sigmoid(x)
+        x = self.dropout(x)
         x = self.h(x)
         out = F.sigmoid(x)
         #####################################################################
@@ -86,7 +91,7 @@ def train(model, lr, lamb, train_data, zero_train_data, valid_data, num_epoch):
     :param zero_train_data: 2D FloatTensor
     :param valid_data: Dict
     :param num_epoch: int
-    :return: None
+    :return: (lst_train_loss, lst_val_acc)
     """
 
     # Tell PyTorch you are training the model.
@@ -97,7 +102,7 @@ def train(model, lr, lamb, train_data, zero_train_data, valid_data, num_epoch):
     lst_val_acc = []
 
     # Define optimizers and loss function.
-    optimizer = optim.SGD(model.parameters(), lr=lr)
+    optimizer = optim.Adam(model.parameters(), lr=lr)
     num_student = train_data.shape[0]
 
     for epoch in range(0, num_epoch):
@@ -125,12 +130,10 @@ def train(model, lr, lamb, train_data, zero_train_data, valid_data, num_epoch):
         valid_acc = evaluate(model, zero_train_data, valid_data)
         lst_train_loss.append(train_loss)
         lst_val_acc.append(valid_acc)
+
         print("Epoch: {} \tTraining Cost: {:.6f}\t "
               "Valid Acc: {}".format(epoch + 1, train_loss, valid_acc))
     return lst_train_loss, lst_val_acc
-    #####################################################################
-    #                       END OF YOUR CODE                            #
-    #####################################################################
 
 
 def evaluate(model, train_data, valid_data):
@@ -158,43 +161,117 @@ def evaluate(model, train_data, valid_data):
         total += 1
     return correct / float(total)
 
+def re_sampling(data, size) -> torch.Tensor:
+    """
+    Bootstrapping the training set.
+    :param data: A Tensor
+    :return: A Tensor
+    """
+    resample = torch.Tensor(size, 3)
+    i = 0
+    while i < size:
+        index = np.random.randint(0, len(data))
+        resample[i] = data[index]
+        i += 1
+    return resample
+
+
+def cross_validation(model, data, origin_valid, matrix_size, lr, lamb, num_epoch, n_splits):
+    """ This function performs k-fold cross validation on the training data.
+
+    :param model: Module
+    :param data: 2D FloatTensor
+    :param origin_valid: A dictionary
+    :param matrix_size: tuple
+    :param lr: float
+    :param lamb: float
+    :param num_epoch: int
+    :param n_splits: int
+    :return
+    """
+    # Define the K-fold Cross Validator
+    kf = KFold(n_splits=n_splits)
+
+    accuracies = []
+    size = len(data)
+
+    iteration = 0
+    for train_index, valid_index in kf.split(data):
+        # Split the data into training and testing.
+        train_data, valid_data = data[train_index], data[valid_index]
+
+        # Resampling the training set.
+        train_data = re_sampling(train_data, size)
+
+        # Convert the training data to matrix.
+        train_matrix = np.empty(matrix_size)
+        train_matrix[:] = np.nan
+
+        for i in range(len(train_data)):
+            train_matrix[int(train_data[i][0])][int(train_data[i][1])] = train_data[i][2]
+
+        # Replace the nan with 0.
+        zero_train_matrix = np.nan_to_num(train_matrix)
+
+        # Convert the data to FloatTensor.
+        zero_train_matrix = torch.FloatTensor(zero_train_matrix)
+        train_matrix = torch.FloatTensor(train_matrix)
+
+        # Train the model.
+        print("Iteration: ", iteration + 1)
+        _, val_acc = train(model, lr, lamb, train_matrix, zero_train_matrix, origin_valid, num_epoch)
+
+        # Evaluate the model on the testing set.
+        origin_accuracy = evaluate(model, zero_train_matrix, origin_valid)
+        accuracies.extend(val_acc)
+
+        # Print the accuracy.
+        print("The validation accuracy of the model on the validation set is: ", origin_accuracy)
+
+        iteration += 1
+
+    return accuracies
+
 
 def main():
+    # Load the data.
     zero_train_matrix, train_matrix, valid_data, test_data = load_data()
 
-    #####################################################################
+    matrix_size = zero_train_matrix.shape
 
+    # Convert the data to (num_student * num_question, 3) tensor.
+    transfer_data = torch.Tensor(train_matrix.shape[0] * train_matrix.shape[1], 3)
+    index = 0
+    for i in range(train_matrix.shape[0]):
+        for j in range(train_matrix.shape[1]):
+            if not np.isnan(train_matrix[i][j]):
+                transfer_data[index][0] = i
+                transfer_data[index][1] = j
+                transfer_data[index][2] = train_matrix[i][j]
+                index += 1
+
+    transfer_data = transfer_data[torch.randperm(transfer_data.size()[0])]
     # Tune model hyperparameters.
     k_set = [10, 50, 100, 200, 500]
-    lamb_set = [0, 0.001, 0.01, 0.1, 1]
+    splits = [3, 5, 10]
+    lamb_set = [0, 0.001, 0.01, 0.1, 0.3, 1]
     lr_set = [0.001, 0.005, 0.01, 0.05, 0.1, 1]
-    num_epoch_set = [5, 10, 20, 30, 50]
+    num_epoch_set = [3, 5, 7, 10, 20, 30, 50]
+    model = AutoEncoder(train_matrix.shape[1], k=k_set[3])
+    accuracies = cross_validation(model, transfer_data, valid_data, matrix_size, lr_set[2], lamb_set[1], num_epoch_set[1], splits[1])
 
-    model = AutoEncoder(train_matrix.shape[1], k=k_set[2])
-    lst_train_loss, lst_valid_acc = train(model, lr_set[3], lamb_set[1], train_matrix, zero_train_matrix,
-                                        valid_data, num_epoch_set[2])
-
-    iters = range(len(lst_train_loss))
-
-    plt.plot(iters, lst_train_loss, 'r', label='train loss')
-    plt.xlabel('epoch')
-    plt.ylabel('loss')
-    plt.title("train loss")
-    plt.legend(loc="upper right")
-    plt.show()
-
-    iters = range(len(lst_valid_acc))
-    plt.plot(iters, lst_valid_acc, 'b', label='valid accuracy')
+    iters = range(len(accuracies))
+    plt.plot(iters, accuracies, 'b', label='valid accuracy')
     plt.xlabel('epoch')
     plt.ylabel('acc')
+    for i in range(0, len(accuracies), splits[1]):
+        plt.axvline(x=i, color='r', linestyle='--')
     plt.title("valid accuracy")
     plt.legend(loc="upper right")
     plt.show()
 
-    test_acc = evaluate(model, zero_train_matrix, test_data)
-    print("Test Accuracy: {}".format(test_acc))
-
-    #####################################################################
+    print("The final validation accuracy of the model is: ", evaluate(model, zero_train_matrix, valid_data))
+    print("The testing accuracy of the model is: ", evaluate(model, zero_train_matrix, test_data))
 
 
 if __name__ == "__main__":

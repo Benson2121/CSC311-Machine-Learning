@@ -50,6 +50,7 @@ class AutoEncoder(nn.Module):
         # Define linear functions.
         self.g = nn.Linear(num_question, k)
         self.h = nn.Linear(k, num_question)
+        self.dropout = nn.Dropout(p=0.3)
 
     def get_weight_norm(self):
         """ Return ||W^1||^2 + ||W^2||^2.
@@ -69,6 +70,7 @@ class AutoEncoder(nn.Module):
         #####################################################################
         x = self.g(inputs)
         x = F.sigmoid(x)
+        x = self.dropout(x)
         x = self.h(x)
         out = F.sigmoid(x)
         #####################################################################
