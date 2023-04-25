@@ -1,7 +1,5 @@
 # CSC311 - Assignment1
 
-Please refer to the handout.pdf for the full assignment.
-
 ## 1. Nearest Neighbours and the Curse of Dimensionality. 
 
 In this question, you will verify the claim from lecture that “most” points in a high-dimensional space are far away from each other, and also approximately the same distance. There is a very neat proof of this fact which uses the properties of expectation and variance.
