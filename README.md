@@ -1,4 +1,4 @@
-# CSC311 Machine-Learning
+# CSC311 Machine-Learning -- Winter 2023
 
 Instructor: Michael Zhang & Chandra Gummaluru
 
