@@ -1,7 +1,5 @@
 # CSC311 - Assignment2
 
-Please refer to the handout.pdf for the full assignment.
-
 ## 1. Expected Loss and Bayes Optimality
 
 

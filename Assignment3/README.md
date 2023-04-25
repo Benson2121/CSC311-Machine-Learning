@@ -1,7 +1,5 @@
 # CSC311 - Assignment3
 
-Please refer to the handout.pdf for the full assignment.
-
 ## 1. Backpropagation.
 In this question, you will derive the backprop updates for a particular neural net architecture. The network has one linear hidden layer. However, there are two architectural differences:
 Your studies indicate that 20% of the emails are spam, i.e. Pr(t = Spam) = 0.2.
