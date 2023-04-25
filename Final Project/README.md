@@ -57,7 +57,7 @@ Lastly, we provide the student metadata, student_meta.csv, that is composed of t
 - **data of birth**: Birth date of the student, when available.
 - **premium pupil**: Student’s eligibility for free school meals or pupil premium due to being financially disadvantaged, when available.
 
-## 4. PartA: Applying Existing Algorithms
+## 4. Part A: Applying Existing Algorithms
 
 In the first part of the project, you will implement and apply various machine learning algorithms you studied in the course to predict students’ correctness of a given diagnostic question. Review the course notes if you don’t recall the details of each algorithm. For this part, you will only be using the primary data: train_data.csv, sparse_matrix.npz, valid_data.csv, and test_data.csv. Moreover, you may use the helper functions provided in utils.py to load the dataset and evaluate your model. You may also use any functions from packages NumPy, Scipy, Pandas, and PyTorch. Make sure you understand the code instead of using it as a black box.
 
@@ -121,7 +121,7 @@ You may use a method get_weight_norm to obtain the regularization term. Using th
 
 In this problem, you will be implementing bagging ensemble to improve the stability and accuracy of your base models. Select and train 3 base models with bootstrapping the training set. You may use the same or different base models. Your implementation should be completed in part_a/ensemble.py. To predict the correctness, generate 3 predictions by using the base model and average the predicted correctness. Report the final validation and test accuracy. Explain the ensemble process you implemented. Do you obtain better performance using the ensemble? Why or why not?
 
-## PartB: Novel Methods
+## Part B: Novel Methods
 
 
 In the second part of the project, you will modify one of the algorithms you implemented in part A to hopefully predict students’ answers to the diagnostic question with higher accuracy. In particular, consider the results obtained in part A, reason about what factors are limiting the performance of one of the methods (e.g. overfitting? underfitting? optimization difficulties?) and come up with a proposed modification to the algorithm which could help address this problem. Rigorously test the performance of your modified algorithm, and write up a report summarizing your results as described below.
