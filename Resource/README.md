@@ -10,6 +10,6 @@ They are all free online.
 
 ### Courses & Notes
 
-- [CS229: Machine Learning, Stanford University, Andrew Ng](http://cs229.stanford.edu/)
+- [CS229: Machine Learning, Stanford University](http://cs229.stanford.edu/)
 - [6.036: Introduction to Machine Learning, MIT, 2016](https://openlearninglibrary.mit.edu/courses/course-v1:MITx+6.036+1T2019/course/)
 - [CSC321: Introduction to Neural Networks and Machine Learning, University of Toronto](http://www.cs.toronto.edu/~rgrosse/courses/csc321_2018/)
