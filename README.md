@@ -1,4 +1,8 @@
-# CSC311 Machine-Learning
+# CSC311 Machine-Learning 
+
+University of Toronto
+
+CSC311: Introduction to machine learning -- Winter 2023
 
 Instructor: Michael Zhang & Chandra Gummaluru
 
