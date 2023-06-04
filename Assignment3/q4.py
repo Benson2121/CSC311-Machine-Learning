@@ -62,13 +62,12 @@ def generative_likelihood(digits, means, covariances):
 
     Should return an n x 10 numpy array
     '''
-    d = 64
     n = digits.shape[0]
     likelihood = np.zeros((n, 10))
+    # Compute log likelihood
     for i in range(10):
         x_u = digits - means[i]
-        const = -0.5 * d * np.log(2 * np.pi) - 0.5 * np.log(np.linalg.det(covariances[i]))
-        likelihood[:, i] = const - 0.5 * np.sum(x_u @ np.linalg.inv(covariances[i]) * x_u, axis=1)
+        likelihood[:, i] = -0.5 * np.sum(np.log(np.linalg.det(covariances[i]))) - 0.5 * np.sum(x_u @ np.linalg.inv(covariances[i]) * x_u, axis=1)
     return likelihood
 
 
